@@ -1,60 +1,47 @@
-CREATE DATABASE drive_loc ;
-
-CREATE TABLE Role (
-	idRole INT AUTO_INCREMENT PRIMARY KEY,
-	nomeRole VARCHAR(255) NOT NULL UNIQUE
-    );
-
-INSERT INTO Role (nomeRole) VALUES ('Admin');
-INSERT INTO Role (nomeRole) VALUES ('Client');
-
-CREATE TABLE User (
-    idUser INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL ,
-    emeil VARCHAR(255) NOT NULL ,
-    motDepasse VARCHAR(255) NOT NULL  ,
-    adresse VARCHAR(255) ,  
-    releId INT ,
-    FOREIGN KEY (roleId) REFERENCES Role(idRole)
-
+CREATE TABLE Articles (
+    article_id INT AUTO_INCREMENT PRIMARY KEY,  
+    title VARCHAR(255) NOT NULL,                
+    content TEXT NOT NULL,                      
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+    idUser INT,                              
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'  
 );
 
-CREATE TABLE Categorie (
-        idCategorie INT AUTO_INCREMENT PRIMARY KEY ,
-        nom VARCHAR(255) NOT NULL,
-        description TEXT
+CREATE TABLE Tags (
+    tag_id INT AUTO_INCREMENT PRIMARY KEY,   
+    name VARCHAR(100) NOT NULL UNIQUE          
 );
 
-CREATE TABLE Vehicule (
-    idVehicule INT AUTO_INCREMENT PRIMARY KEY ,
-    modele VARCHAR(255) NOT NULL ,
-    prix   DECIMAL(10, 2) NOT NULL ,
-    disponible varchar(255) NOT NULL ,
-    categorieId INT ,
-    FOREIGN KEY (categorieId) REFERENCES Categorie(idCategorie)
+CREATE TABLE Tag_Article (
+    article_id INT,                          
+    tag_id INT,                               
+    PRIMARY KEY (article_id, tag_id),          
+    FOREIGN KEY (article_id) REFERENCES Articles(article_id) ON DELETE CASCADE,  
+    FOREIGN KEY (tag_id) REFERENCES Tags(tag_id) ON DELETE CASCADE               
 );
 
-CREATE TABLE Avis (
-    idAvis INT AUTO_INCREMENT PRIMARY KEY ,
-    note INT NOT NULL ,
-    commentaire TEXT ,
-    dateAvis DATE,
-    vehiculeId INT ,
-    userId INT ,
-    FOREIGN KEY (vehiculeId) REFERENCES Vehicule(idVehicule),
-    FOREIGN KEY (userId) REFERENCES user(iduser)
+CREATE TABLE Comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,  
+    article_id INT,                             
+    idUser INT,                               
+    content TEXT NOT NULL,                      
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY (article_id) REFERENCES Articles(article_id) ON DELETE CASCADE,  
+    FOREIGN KEY (idUser) REFERENCES user(idUser) ON DELETE CASCADE              
 );
 
-CREATE TABLE Reservation (
-    idReservation INT AUTO_INCREMENT PRIMARY KEY,
-    dateDebut DATE NOT NULL,
-    dateFin DATE NOT NULL,
-    statut VARCHAR(255) NOT NULL,
-    vehiculeId INT,
-    userId INT,
-    FOREIGN KEY (vehiculeId) REFERENCES Vehicule(idVehicule),
-    FOREIGN KEY (userId) REFERENCES User(idUser)
+CREATE TABLE Favorites (
+    favorite_id INT AUTO_INCREMENT PRIMARY KEY,  
+    idUser INT,                                
+    article_id INT,                            
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
+    FOREIGN KEY (idUser) REFERENCES user(idUser) ON DELETE CASCADE,  
+    FOREIGN KEY (article_id) REFERENCES Articles(article_id) ON DELETE CASCADE  
 );
 
-ALTER TABLE vehicule 
-ADD COLUMN img VARCHAR(255);
+CREATE TABLE Themes (
+    theme_id INT AUTO_INCREMENT PRIMARY KEY,   
+    name VARCHAR(255) NOT NULL UNIQUE          
+);
+
