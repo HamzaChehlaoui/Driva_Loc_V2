@@ -37,4 +37,4 @@ Cette plateforme permet aux utilisateurs de louer des véhicules (voitures, moto
 1. PHP 7.4 ou supérieur.
 2. MySQL ou MariaDB pour la gestion de la base de données.
 
-
+- <a href="https://www.canva.com/design/DAGbatHBhI4/Pj-d1_oMiiPDyR3hcHNdOg/edit">Diagremme Use Case</a>
