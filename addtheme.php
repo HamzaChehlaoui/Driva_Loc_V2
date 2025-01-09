@@ -4,7 +4,7 @@ require 'theme.php';
 if (isset($_POST['submit'])) {
     echo 'hamza';
 
-    $neme = $_POST['name_theme'];
+    $name = $_POST['name_theme'];
 
 
 
@@ -13,12 +13,12 @@ if (isset($_POST['submit'])) {
 
     $thame = new theme($db);
 
-    $theme->name = $neme;
+    $thame->name = $name;
 
 
     if ($thame->addtheme()) {
         echo "Category added successfully!";
-        header('Location:admin.php');
+        header('Location:blogger.php');
     } else {
         echo "Error adding category.";
     }

@@ -2,8 +2,8 @@
 require 'conn.php';
 
 class theme {
-    private $conn;
-    private $table_name = "themes";  
+    public $conn;
+    public $table_name = "themes";  
     public $name;
     public function __construct($db) {
         $this->conn = $db;
@@ -20,6 +20,20 @@ class theme {
             return true;
         }
         return false;
+        
     }
+    public function gettheme() {
+        if (!$this->conn instanceof PDO) {
+            echo 'Connection is not a valid PDO object';
+            return [];
+        }
+    
+        $query = "SELECT * FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);  
+        $stmt->execute();
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }
 ?>

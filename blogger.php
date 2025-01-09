@@ -1,3 +1,12 @@
+<?php 
+require("theme.php");
+
+$database = new Database();
+$db = $database->getConnection();
+$theme = new theme($db);
+
+$themes = $theme->gettheme();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,11 +33,11 @@
                         <li><a href="showcare.php" class="hover:bg-gray-700 px-4 py-2 rounded">Explore Cars</a></li>
                         <li><a href="showReserv.php" class="hover:bg-gray-700 px-4 py-2 rounded">Reservation</a></li>
                         <li><a href="blogger.php" class="hover:bg-gray-700 px-4 py-2 rounded">Blogger</a></li>
-                        <select name="" id="" class=" px-4 py-2 rounded text-[#000]">
-                            <option  value="">Thème 1</option>
-                            <option  value="">Thème 2</option>
-                            <option  value="">Thème 3</option>
-                            <option  value="">Thème 4</option>
+                       
+                        <select name="theme" id="theme" class="px-4 py-2 rounded text-[#000]">
+                            <?php foreach ($themes as $theme): ?>
+                            <option value="<?php echo $theme['theme_id']; ?>"><?php echo $theme['name']; ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </ul>
                 </div>
