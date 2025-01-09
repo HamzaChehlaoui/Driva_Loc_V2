@@ -4,6 +4,7 @@ require 'conn.php';
 class theme {
     public $conn;
     public $table_name = "themes";  
+    public $table_name2="articles";
     public $name;
     public function __construct($db) {
         $this->conn = $db;
@@ -29,6 +30,18 @@ class theme {
         }
     
         $query = "SELECT * FROM " . $this->table_name;
+        $stmt = $this->conn->prepare($query);  
+        $stmt->execute();
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getArticles() {
+        if (!$this->conn instanceof PDO) {
+            echo 'Connection is not a valid PDO object';
+            return [];
+        }
+    
+        $query = "SELECT * FROM " . $this->table_name2;
         $stmt = $this->conn->prepare($query);  
         $stmt->execute();
     

@@ -1,9 +1,12 @@
 <?php 
-require("theme.php");
+require_once("theme.php");
+
 
 $database = new Database();
 $db = $database->getConnection();
 $theme = new theme($db);
+
+$articles = $theme -> getArticles();
 
 $themes = $theme->gettheme();
 ?>
@@ -61,51 +64,35 @@ $themes = $theme->gettheme();
         </div>
     </section>
     <div class="container mx-auto p-6 flex space-x-8">
+        <?php foreach($articles as $theme) :?>
         <!-- Article Main Content -->
         <main class="flex-1 bg-white p-6 rounded-lg shadow-lg">
+            
             <article>
-                <h2 class="text-4xl font-bold mb-4">The Future of Web Design</h2>
-                <p class="text-lg text-gray-700 mb-6">Web design has evolved rapidly over the past few years. With the rise of
-                    mobile-first design, interactive websites, and performance-focused design practices, the future of
-                    web design looks more dynamic and user-centric than ever before.</p>
-                <p class="text-lg text-gray-700 mb-6">In this article, we will explore the key trends and tools that will shape
-                    web design in the years to come, such as AI-driven design, voice interfaces, and the continued
-                    importance of accessibility.</p>
-                <img src="https://via.placeholder.com/800x400" alt="Web Design Future" class="w-full rounded-lg mb-6">
-                <h3 class="text-2xl font-semibold mb-4">Key Trends to Watch</h3>
-                <ul class="list-disc pl-6 mb-6">
-                    <li class="text-lg text-gray-700">AI-Driven Design</li>
-                    <li class="text-lg text-gray-700">Voice User Interface (VUI)</li>
-                    <li class="text-lg text-gray-700">Mobile-First Design</li>
-                    <li class="text-lg text-gray-700">Sustainability in Web Design</li>
+                <h2 class="text-4xl font-bold text-[#000] mb-4"><?php echo $theme['title'] ?></h2>
+                <p class="text-lg text-gray-700 mb-6"><?php echo $theme['title'] ?></p>
+                <img src="<?php echo $theme['imgs'] ?>" alt="Web Design Future" class="w-[50%] rounded-lg mb-6">
+                <ul class="list-disc pl-6 mb-6 flex list-none gap-[1rem]">
+                    <li class="text-lg text-gray-700 ">tage_article</li>
+                    
                 </ul>
-                <p class="text-lg text-gray-700">As technology advances, web design will need to adapt to new challenges and
-                    opportunities. The role of web designers will become more integrated with other fields, such as AI and
-                    user experience design.</p>
+                
+                <a href="show_article.php?id=<?php echo $theme['article_id'] ?>" class="text-lg text-gray-700">more</a>
             </article>
         </main>
-
-        <!-- Sidebar Section -->
-        <aside class="w-1/3 bg-white p-6 rounded-lg shadow-lg">
-            <h3 class="text-2xl font-semibold mb-4">Related Articles</h3>
-            <ul class="space-y-4">
-                <li><a href="#" class="text-lg text-blue-600 hover:underline">The Impact of Mobile Design on UX</a></li>
-                <li><a href="#" class="text-lg text-blue-600 hover:underline">How to Optimize Your Website for Speed</a></li>
-                <li><a href="#" class="text-lg text-blue-600 hover:underline">Designing for Accessibility: Best Practices</a></li>
-            </ul>
-        </aside>
+        <?php endforeach;?>
+        
+        
+        
     </div>
-      
+    <div class="container mx-auto p-4">
+    
+        
+    
+    
+    
+    
 
-
-    <!-- Articles Section -->
-    <section id="articlesSection" class="max-w-7xl mx-auto py-8 px-4 hidden">
-        <h2 class="text-3xl font-semibold mb-6">Articles for <span id="currentTheme"></span></h2>
-
-        <div id="articlesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-black" >
-            <!-- Articles will be injected here -->
-        </div>
-    </section>
 
 
 </body>
