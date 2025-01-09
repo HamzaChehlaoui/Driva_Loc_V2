@@ -50,6 +50,7 @@ $themes = $theme->gettheme();
             <div>
                 <h2 class="text-4xl font-semibold mb-4 text-white">Welcome to the world of cars</h2>
                 <a href="Add_theme.php" class="text-xl mb-8 text-white  ">Add theme</a>
+                <a href="Add_articl.php" class="text-xl mb-8 text-white  ml-[2rem]">Add Article</a>
                 <div class="relative">
     
     <div class="flex items-center justify-center">
