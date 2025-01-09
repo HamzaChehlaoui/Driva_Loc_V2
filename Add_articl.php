@@ -1,3 +1,12 @@
+<?php 
+require("theme.php");
+
+$database = new Database();
+$db = $database->getConnection();
+$theme = new theme($db);
+
+$themes = $theme->gettheme();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,9 +41,19 @@
 
     <div class="max-w-lg mx-auto p-6 bg-gray-800 rounded-lg shadow-md mt-10">
         <form action="add.articl.php" method="POST">
+            <p class="block text-white text-lg font-medium mb-2">Choose the subject that belongs to the article.</p>
+        <select name="idtheme" id="theme" class="px-4 py-2 rounded text-[#000]">
+                            <?php foreach ($themes as $theme): ?>
+                            <option value="<?php echo $theme['theme_id']; ?>"><?php echo $theme['name']; ?></option>
+                            <?php endforeach; ?>
+        </select>
             <div class="mb-4">
                 <label for="titre" class="block text-white text-lg font-medium mb-2">Titre</label>
                 <input type="text" name="titre" id="titre" class="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black" required>
+            </div>
+            <div class="mb-4">
+                <label for="image" class="block text-white text-lg font-medium mb-2">image</label>
+                <input type="text" name="image" id="image" class="w-full p-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black" required>
             </div>
 
             <div class="mb-4">

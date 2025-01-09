@@ -7,7 +7,8 @@ if (isset($_POST['submit'])) {
 
     $titre = $_POST['titre'];
     $content = $_POST['content'];
-
+    $idtheme = $_POST['idtheme'];
+    $image = $_POST['image'];
 
 
     $database = new Database();
@@ -18,6 +19,8 @@ if (isset($_POST['submit'])) {
     $thame->title = $titre;
     $thame->content = $content;
     $thame->user_id = $user_id;
+    $thame->idtheme = $idtheme;
+    $thame->image = $image;
 
     if ($thame->addArticle()) {
         echo "Category added successfully!";

@@ -4,9 +4,16 @@ CREATE TABLE Articles (
     content TEXT NOT NULL,                      
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-    idUser INT,                              
+    idUser INT,
     status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'  
+     FOREIGN KEY (theme_id) REFERENCES Themes(theme_id)                           
 );
+
+ALTER TABLE articles 
+ADD CONSTRAINT fk_theme_id 
+FOREIGN KEY (theme_id) 
+REFERENCES themes(theme_id);
+
 
 CREATE TABLE Tags (
     tag_id INT AUTO_INCREMENT PRIMARY KEY,   

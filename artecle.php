@@ -9,6 +9,8 @@ class Article {
     public $table_name = "articles";  
     public $title;
     public $content;
+    public $idtheme;
+    public $image;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -21,12 +23,14 @@ class Article {
             return false;
         }
         
-        $query = "INSERT INTO " . $this->table_name . " (title, content, idUser) VALUES (:title, :content ,:user_id)";
+        $query = "INSERT INTO " . $this->table_name . " (title, content, idUser ,theme_id ,img) VALUES (:title, :content ,:user_id, :idtheme ,:image)";
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':title', $this->title);
         $stmt->bindParam(':content', $this->content);
         $stmt->bindParam(':user_id', $this->user_id);
+        $stmt->bindParam(':idtheme', $this->idtheme);
+        $stmt->bindParam(':image', $this->image);
 
         if ($stmt->execute()) {
             return true;
