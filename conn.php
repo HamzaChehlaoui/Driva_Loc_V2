@@ -2,7 +2,7 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $db_name = "drive_loc";  
+    private $db_name = "dr_l_v2";
     private $username = "root";       
     private $password = "";          
     private $conn;
