@@ -23,7 +23,7 @@ if (isset($_POST['submit'])) {
 
     if ($commits->addCommit()) {
         echo "Comment added successfully!";
-        header('Location: blogger.php');
+        header('Location: show_article.php?id='. $article_id);
         exit(); 
     } else {
         echo "Error adding comment.";

@@ -9,6 +9,7 @@ $theme = new theme($db);
 $articles = $theme -> getArticles();
 
 $themes = $theme->gettheme();
+$commit = $theme->getcommit();
 $id=$_GET['id'];
 ?>
 <!DOCTYPE html>
@@ -56,12 +57,12 @@ $id=$_GET['id'];
                     <li class="text-lg text-gray-700 ">tage_article</li>
                     
                 </ul>
-                <p class="text-lg text-gray-700"><?php echo $theme['content'] ?></p>
+                <p class="text-lg text-gray-700"><?php echo $theme['contents'] ?></p>
             </article>
         </main>
         <!-- Liste des commentaires -->
 <div class="space-y-4">
-    <div class="bg-black p-4 rounded-lg shadow-md">
+    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
         <div class="flex items-center mb-2">
             <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
             <p class="text-sm font-semibold text-white">Jean Dupont</p>
@@ -69,13 +70,32 @@ $id=$_GET['id'];
         <p class="text-gray-400">C'est un excellent article ! J'ai appris beaucoup de choses aujourd'hui.</p>
     </div>
 
-    <div class="bg-black p-4 rounded-lg shadow-md">
+    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
         <div class="flex items-center mb-2">
             <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
             <p class="text-sm font-semibold text-white">Marie Dubois</p>
         </div>
         <p class="text-gray-400">Merci pour ces informations, très utiles pour mon projet !</p>
     </div>
+
+    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
+        <div class="flex items-center mb-2">
+            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
+            <p class="text-sm font-semibold text-white">Marie Dubois</p>
+        </div>
+        <p class="text-gray-400">Merci pour ces informations, très utiles pour mon projet !</p>
+    </div>
+    <?php foreach($commit as $theme) :?>
+        <?php if($theme['article_id']==$id){ ?>
+            
+        <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
+        <div class="flex items-center mb-2">
+            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
+            <p class="text-sm font-semibold text-white">Marie Dubois</p>
+        </div>
+        <p class="text-gray-400"><?php echo $theme['content']?></p>
+    </div>
+    <?php }endforeach;?>
 </div>
 
 <form action="add_commit.php?id=<?php echo $theme['article_id']?>" method="POST">

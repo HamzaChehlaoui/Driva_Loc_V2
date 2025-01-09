@@ -4,7 +4,6 @@ require("theme.php");
 $database = new Database();
 $db = $database->getConnection();
 $theme = new theme($db);
-
 $themes = $theme->gettheme();
 ?>
 <!DOCTYPE html>
