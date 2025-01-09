@@ -1,15 +1,21 @@
 <?php 
 require_once("theme.php");
 
-
 $database = new Database();
 $db = $database->getConnection();
 $theme = new theme($db);
 
-$articles = $theme -> getArticles();
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
+if ($search) {
+    $articles = $theme->getArticles($search);  
+} else {
+    $articles = $theme->getArticles(); 
+}
 
 $themes = $theme->gettheme();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,12 +30,10 @@ $themes = $theme->gettheme();
     <nav class="bg-black text-white py-4">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center">
-                <!-- Logo or Brand Name -->
-                <div class="text-2xl font-bold">
-                    <a href="#">MyWebsite</a>
-                </div>
-                
-                <!-- Navbar Links -->
+            <form action="blogger.php" method="GET" class="flex items-center space-x-4">
+    <input type="text" name="search" id="search" class="px-4 py-2 rounded text-black" placeholder="Search Articles">
+    <button type="submit" class="px-4 py-2 rounded bg-gray-700 text-white">Search</button>
+</form>
                 <div>
                     <ul class="flex space-x-6">
                         <li><a href="user.php" class="hover:bg-gray-700 px-4 py-2 rounded">Home</a></li>
@@ -47,6 +51,7 @@ $themes = $theme->gettheme();
             </div>
         </div>
     </nav>
+   
     <section class="relative">
         <img src="https://st2.depositphotos.com/5473448/8221/i/450/depositphotos_82213968-stock-photo-red-text-3d-rendering-with.jpg" class="h-[600px] w-[100%]">
         <div class="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center text-center p-4">

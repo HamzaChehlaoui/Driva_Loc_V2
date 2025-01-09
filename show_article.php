@@ -11,6 +11,11 @@ $articles = $theme -> getArticles();
 $themes = $theme->gettheme();
 $commit = $theme->getcommit();
 $id=$_GET['id'];
+$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Modify the getArticles method to accept a search term
+$articles = $theme->getArticles($searchTerm);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +26,16 @@ $id=$_GET['id'];
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
+    <style>
+        .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Hide the scrollbar in Webkit browsers (Chrome, Safari, etc.) */
+}
+
+.scrollbar-hidden {
+    -ms-overflow-style: none;  /* Hide scrollbar for Internet Explorer */
+    scrollbar-width: none;     /* Hide scrollbar for Firefox */
+}
+    </style>
     <!-- Navbar -->
     <nav class="bg-black text-white py-4">
         <div class="max-w-7xl mx-auto px-4">
@@ -44,6 +59,8 @@ $id=$_GET['id'];
             </div>
         </div>
     </nav>
+    
+
     <?php foreach($articles as $theme) :?>
         <?php if($theme['article_id']==$id){?>
         <!-- Article Main Content -->
@@ -61,51 +78,57 @@ $id=$_GET['id'];
             </article>
         </main>
         <!-- Liste des commentaires -->
-<div class="space-y-4">
-    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
-        <div class="flex items-center mb-2">
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
-            <p class="text-sm font-semibold text-white">Jean Dupont</p>
-        </div>
-        <p class="text-gray-400">C'est un excellent article ! J'ai appris beaucoup de choses aujourd'hui.</p>
-    </div>
+        <div class="space-y-4">
+    <!-- Single Comment Block -->
+    
 
-    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
-        <div class="flex items-center mb-2">
-            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
-            <p class="text-sm font-semibold text-white">Marie Dubois</p>
-        </div>
-        <p class="text-gray-400">Merci pour ces informations, très utiles pour mon projet !</p>
-    </div>
+    <!-- Another Comment Block -->
+    
 
-    <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
-        <div class="flex items-center mb-2">
-            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
-            <p class="text-sm font-semibold text-white">Marie Dubois</p>
-        </div>
-        <p class="text-gray-400">Merci pour ces informations, très utiles pour mon projet !</p>
-    </div>
-    <?php foreach($commit as $theme) :?>
-        <?php if($theme['article_id']==$id){ ?>
-            
-        <div class="bg-black p-4 rounded-lg shadow-md w-[40%]">
-        <div class="flex items-center mb-2">
-            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-8 h-8 rounded-full mr-2">
-            <p class="text-sm font-semibold text-white">Marie Dubois</p>
-        </div>
-        <p class="text-gray-400"><?php echo $theme['content']?></p>
-    </div>
-    <?php }endforeach;?>
+    
 </div>
 
-<form action="add_commit.php?id=<?php echo $theme['article_id']?>" method="POST">
-    <div class="bg-black p-6 rounded-lg shadow-md mb-6 mt-[2rem]">
-        <textarea name="content" class="w-full p-4 mb-4 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-black" rows="4" placeholder="Écrivez votre commentaire ici..."></textarea>
-        <button type="submit" name="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+<!-- Scrollable Comment Section -->
+<div class="h-[400px] overflow-y-auto bg-gray-800 p-4 rounded-lg shadow-md mb-6 mt-[2rem] w-[40%] scrollbar-hidden">
+<div class="bg-gray-700 p-4 rounded-lg shadow-md mb-4 ">
+        <div class="flex items-center mb-3">
+            <!-- User Avatar -->
+            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-gray-600">
+            <!-- Username -->
+            <p class="text-sm font-semibold text-white">Marie Dubois</p>
+        </div>
+        <!-- Comment Content -->
+        <p class="text-gray-400 text-sm">Merci pour ces informations, très utiles pour mon projet !</p>
+    </div>
+    <!-- This will be the section that holds the comments -->
+    <?php foreach($commit as $theme) :?>
+        <?php if($theme['article_id'] == $id){ ?>
+            <div class="bg-gray-700 p-4 rounded-lg shadow-md mb-4 ">
+                <div class="flex items-center mb-3">
+                    <!-- User Avatar -->
+                    <img src="https://media.istockphoto.com/id/1016744004/fr/vectoriel/image-despace-r%C3%A9serv%C3%A9-de-profil-gray-ne-silhouette-aucune-photo.jpg?s=612x612&w=0&k=20&c=7OLCKLuDpDHaXywnkaGuK-bKQS9lnivwYDYnGqD60bc=" alt="User Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-gray-600">
+                    <!-- Username -->
+                    <p class="text-sm font-semibold text-white">Utilisateur Anonyme</p>
+                </div>
+                <!-- Comment Content -->
+                <p class="text-gray-400 text-sm"><?php echo $theme['content']; ?></p>
+            </div>
+        <?php } endforeach; ?>
+</div>
+
+<!-- Comment Form Section -->
+<form action="add_commit.php?id=<?php echo $theme['article_id'] ?>" method="POST">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6 mt-[2rem]">
+        <!-- Comment Textarea -->
+        <textarea name="content" class="w-full p-4 mb-4 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-gray-900" rows="4" placeholder="Écrivez votre commentaire ici..."></textarea>
+        <!-- Submit Button -->
+        <button type="submit" name="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
             Publier le commentaire
         </button>
     </div>
 </form>
+
+
 
     </div>
         <?php }endforeach;?>

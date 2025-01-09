@@ -2,10 +2,10 @@
 require 'conn.php';
 
 class theme {
-    public $conn;
-    public $table_name = "themes";  
-    public $table_name2 = "articles";
-    private $table_name3 = "comments";
+    private $conn;
+    const TABLE_NAME_THEMES = "themes";  
+    const TABLE_NAME_ARTICLES = "articles";
+    const TABLE_NAME_COMMENTS = "comments";
     public $name;
 
     public function __construct($db) {
@@ -18,7 +18,7 @@ class theme {
             return false;
         }
 
-        $query = "INSERT INTO " . $this->table_name . " (name) VALUES (:name)";
+        $query = "INSERT INTO " . self::TABLE_NAME_THEMES . " (name) VALUES (:name)";
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':name', $this->name);
@@ -30,47 +30,51 @@ class theme {
                 throw new Exception("Failed to insert theme.");
             }
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            error_log("Error: " . $e->getMessage());
+            echo "An error occurred. Please try again later.";
             return false;
         }
     }
 
     public function gettheme() {
         try {
-            $query = "SELECT * FROM " . $this->table_name;
+            $query = "SELECT * FROM " . self::TABLE_NAME_THEMES;
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            error_log("Error: " . $e->getMessage());
             return [];
         }
     }
 
-    public function getArticles() {
-        try {
-            $query = "SELECT * FROM " . $this->table_name2;
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-            return [];
+    public function getArticles($searchTerm = '') {
+        $query = "SELECT * FROM " . self::TABLE_NAME_ARTICLES;
+        
+        if ($searchTerm) {
+            $query .= " WHERE title LIKE :searchTerm OR contents LIKE :searchTerm";
         }
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if ($searchTerm) {
+            $stmt->bindValue(':searchTerm', "%$searchTerm%", PDO::PARAM_STR);
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getcommit() {
         try {
-            $query = "SELECT article_id, content FROM " . $this->table_name3; 
+            $query = "SELECT article_id, content FROM " . self::TABLE_NAME_COMMENTS;
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            error_log("Error: " . $e->getMessage());
             return [];
         }
     }
-    
-    
 }
 ?>
