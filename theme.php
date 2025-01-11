@@ -76,5 +76,17 @@ class theme {
             return [];
         }
     }
+    public function getTotalArticles($search = '') {
+        $query = "SELECT COUNT(*) as total FROM articles WHERE title LIKE :search";
+        $stmt = $this->conn->prepare($query);
+    
+        $searchTerm = "%".$search."%";
+        $stmt->bindParam(':search', $searchTerm);
+    
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'];
+    }
+    
 }
 ?>

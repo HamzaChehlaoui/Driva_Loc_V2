@@ -24,7 +24,7 @@ class Article {
             return false;
         }
         
-        $query = "INSERT INTO " . $this->table_name . "(title, content, idUser ,theme_id ,img) VALUES (:title, :content ,:user_id, :idtheme ,:image)";
+        $query = "INSERT INTO " . $this->table_name . "(title, contents, idUser ,theme_id ,img) VALUES (:title, :content ,:user_id, :idtheme ,:image)";
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':title', $this->title);

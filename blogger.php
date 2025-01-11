@@ -1,19 +1,30 @@
-<?php 
-require_once("theme.php");
+<?php
+session_start();
+require("conn.php");
+require("Themes.php");
+require("Articles.php");
+require("Comments.php");
+require("Favorite.php");
 
 $database = new Database();
 $db = $database->getConnection();
-$theme = new theme($db);
+$themeObj = new Theme($db);
+$articleObj = new Article($db);
+$commentObj = new Comment($db);
+$favoriteObj = new Favorite($db);
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';
+$selectedTheme = isset($_GET['theme']) ? (int)$_GET['theme'] : null;
+$selectedTag = isset($_GET['tag']) ? (int)$_GET['tag'] : null;
+$articlesPerPage = isset($_GET['perPage']) ? (int)$_GET['perPage'] : 3;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page -1 ) * $articlesPerPage;
 
-if ($search) {
-    $articles = $theme->getArticles($search);  
-} else {
-    $articles = $theme->getArticles(); 
-}
-
-$themes = $theme->gettheme();
+$themes = $themeObj->getAllThemes();
+$tags = $articleObj->getAllTags();
+$articles = $articleObj->getFilteredArticles($search, $selectedTheme, $selectedTag, $articlesPerPage, $offset);
+$totalArticles = $articleObj->getTotalFilteredArticles($search, $selectedTheme, $selectedTag);
+$totalPages = ceil($totalArticles / $articlesPerPage);
 ?>
 
 <!DOCTYPE html>
@@ -21,84 +32,188 @@ $themes = $theme->gettheme();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog with Tailwind CSS</title>
+    <title>Car Blog</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-black text-white">
-
-    <!-- Navbar -->
-    <nav class="bg-black text-white py-4">
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center">
-            <form action="blogger.php" method="GET" class="flex items-center space-x-4">
-    <input type="text" name="search" id="search" class="px-4 py-2 rounded text-black" placeholder="Search Articles">
-    <button type="submit" class="px-4 py-2 rounded bg-gray-700 text-white">Search</button>
-</form>
-                <div>
-                    <ul class="flex space-x-6">
-                        <li><a href="user.php" class="hover:bg-gray-700 px-4 py-2 rounded">Home</a></li>
-                        <li><a href="showcare.php" class="hover:bg-gray-700 px-4 py-2 rounded">Explore Cars</a></li>
-                        <li><a href="showReserv.php" class="hover:bg-gray-700 px-4 py-2 rounded">Reservation</a></li>
-                        <li><a href="blogger.php" class="hover:bg-gray-700 px-4 py-2 rounded">Blogger</a></li>
-                       
-                        <select name="theme" id="theme" class="px-4 py-2 rounded text-[#000]">
-                            <?php foreach ($themes as $theme): ?>
-                            <option value="<?php echo $theme['theme_id']; ?>"><?php echo $theme['name']; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </ul>
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-8">
+                    <a href="index.php" class="text-2xl font-bold text-gray-800">CarBlog</a>
+                    <div class="hidden md:flex space-x-4">
+                        <?php foreach($themes as $theme): ?>
+                            <a href="?theme=<?php echo $theme['theme_id']; ?>" 
+                               class="text-gray-600 hover:text-blue-600 transition">
+                                <?php echo htmlspecialchars($theme['name']); ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
+                
+                <?php if(isset($_SESSION['idUser'])): ?>
+                    <div class="flex items-center space-x-4">
+                        <a href="create_article.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Create Article
+                        </a>
+                        <a href="favorites.php" class="text-gray-600 hover:text-blue-600">
+                            <i class="fas fa-heart"></i> Favorites
+                        </a>
+                        <a href="logout.php" class="text-gray-600 hover:text-red-600">Logout</a>
+                    </div>
+                <?php else: ?>
+                    <div class="flex items-center space-x-4">
+                        <a href="login.php" class="text-gray-600 hover:text-blue-600">Login</a>
+                        <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Register
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </nav>
-   
-    <section class="relative">
-        <img src="https://st2.depositphotos.com/5473448/8221/i/450/depositphotos_82213968-stock-photo-red-text-3d-rendering-with.jpg" class="h-[600px] w-[100%]">
-        <div class="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center text-center p-4">
-            <div>
-                <h2 class="text-4xl font-semibold mb-4 text-white">Welcome to the world of cars</h2>
-                <a href="Add_theme.php" class="text-xl mb-8 text-white  ">Add theme</a>
-                <a href="Add_articl.php" class="text-xl mb-8 text-white  ml-[2rem]">Add Article</a>
-                <div class="relative">
-    
-    <div class="flex items-center justify-center">
-    
-            <h2 class="w-[10rem] h-10 text-[1.5rem] transform rotate-45 origin-center animate-bounce mt-[3rem]">Explore Article</h2>
-    </div>
-    </div>
-        </div>
-    </section>
-    <div class="container mx-auto p-6 flex space-x-8">
-        <?php foreach($articles as $theme) :?>
-        <!-- Article Main Content -->
-        <main class="flex-1 bg-white p-6 rounded-lg shadow-lg">
-            
-            <article>
-                <h2 class="text-4xl font-bold text-[#000] mb-4"><?php echo $theme['title'] ?></h2>
-                <p class="text-lg text-gray-700 mb-6"><?php echo $theme['title'] ?></p>
-                <img src="<?php echo $theme['imgs'] ?>" alt="Web Design Future" class="w-[50%] rounded-lg mb-6">
-                <ul class="list-disc pl-6 mb-6 flex list-none gap-[1rem]">
-                    <li class="text-lg text-gray-700 ">tage_article</li>
-                    
-                </ul>
+
+    <!-- Search and Filters -->
+    <div class="bg-white shadow-md py-4 mb-6">
+        <div class="max-w-7xl mx-auto px-4">
+            <form action="" method="GET" class="flex flex-wrap gap-4">
+                <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
+                       class="flex-1 px-4 py-2 border rounded-lg" placeholder="Search articles...">
                 
-                <a href="show_article.php?id=<?php echo $theme['article_id'] ?>" class="text-lg text-gray-700">more</a>
-            </article>
-        </main>
-        <?php endforeach;?>
-        
-        
-        
+                <select name="tag" class="px-4 py-2 border rounded-lg">
+                    <option value="">All Tags</option>
+                    <?php foreach($tags as $tag): ?>
+                        <option value="<?php echo $tag['tag_id']; ?>" 
+                                <?php echo ($selectedTag == $tag['tag_id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($tag['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <select name="perPage" class="px-4 py-2 border rounded-lg">
+                    <option value="3" <?php echo ($articlesPerPage == 3) ? 'selected' : ''; ?>>3 per page</option>
+                    <option value="10" <?php echo ($articlesPerPage == 10) ? 'selected' : ''; ?>>10 per page</option>
+                    <option value="15" <?php echo ($articlesPerPage == 15) ? 'selected' : ''; ?>>15 per page</option>
+                </select>
+
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                    Search
+                </button>
+            </form>
+        </div>
     </div>
-    <div class="container mx-auto p-4">
-    
-        
-    
-    
-    
-    
 
+    <!-- Articles Grid -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach($articles as $article): ?>
+                <article class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <?php if($article['img']): ?>
+                        <img src="<?php echo htmlspecialchars($article['img']); ?>" 
+                             alt="<?php echo htmlspecialchars($article['title']); ?>"
+                             class="w-full h-48 object-cover">
+                    <?php endif; ?>
+                    
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-2">
+                            <?php echo htmlspecialchars($article['title']); ?>
+                        </h2>
+                        <p class="text-gray-600 mb-4">
+                            <?php echo substr(htmlspecialchars($article['contents']), 0, 150) . '...'; ?>
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <?php foreach($articleObj->getArticleTags($article['article_id']) as $tag): ?>
+                                <span class="bg-gray-200 px-2 py-1 rounded-full text-sm">
+                                    <?php echo htmlspecialchars($tag['name']); ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <a href="article.php?id=<?php echo $article['article_id']; ?>" 
+                               class="text-blue-600 hover:text-blue-800">Read More</a>
+                            
+                            <?php if(isset($_SESSION['idUser'])): ?>
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="toggleFavorite(<?php echo $article['article_id']; ?>)" 
+                                            class="text-gray-600 hover:text-red-600">
+                                        <i class="fas fa-heart <?php echo $favoriteObj->isFavorite($_SESSION['idUser'], $article['article_id']) ? 'text-red-600' : ''; ?>"></i>
+                                    </button>
+                                    
+                                    <?php if($_SESSION['idUser'] == $article['idUser']): ?>
+                                        <a href="edit_article.php?id=<?php echo $article['article_id']; ?>" 
+                                           class="text-gray-600 hover:text-blue-600">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button onclick="deleteArticle(<?php echo $article['article_id']; ?>)" 
+                                                class="text-gray-600 hover:text-red-600">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
 
+        <!-- Pagination -->
+        <?php if($totalPages > 1): ?>
+            <div class="flex justify-center mt-8">
+                <nav class="flex space-x-2">
+                    <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                        <a href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&theme=<?php echo $selectedTheme; ?>&tag=<?php echo $selectedTag; ?>&perPage=<?php echo $articlesPerPage; ?>" 
+                           class="px-4 py-2 rounded-lg <?php echo ($i == $page) ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                    <?php endfor; ?>
+                </nav>
+            </div>
+        <?php endif; ?>
+    </div>
 
+    <script>
+    function toggleFavorite(articleId) {
+        fetch('ajax/toggle_favorite.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                article_id: articleId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                location.reload();
+            }
+        });
+    }
+
+    function deleteArticle(articleId) {
+        if(confirm('Are you sure you want to delete this article?')) {
+            fetch('ajax/delete_article.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    article_id: articleId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload();
+                }
+            });
+        }
+    }
+    </script>
 </body>
 </html>

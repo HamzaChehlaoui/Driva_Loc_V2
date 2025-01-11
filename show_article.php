@@ -117,7 +117,7 @@ $articles = $theme->getArticles($searchTerm);
 </div>
 
 <!-- Comment Form Section -->
-<form action="add_commit.php?id=<?php echo $theme['article_id'] ?>" method="POST">
+<form action="add_commit.php?id_article=<?php echo $theme['article_id']?>" method="POST">
     <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6 mt-[2rem]">
         <!-- Comment Textarea -->
         <textarea name="content" class="w-full p-4 mb-4 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-gray-900" rows="4" placeholder="Écrivez votre commentaire ici..."></textarea>

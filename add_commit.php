@@ -1,13 +1,13 @@
 <?php
 require 'commit.php';
 session_start();
+$article_id = $_GET['id_article'];
+$idUser = $_SESSION['idUser'];
 
-if (!isset($_GET['id']) || !isset($_SESSION['idUser'])) {
+if (!isset($_GET['id_article']) || !isset($_SESSION['idUser'])) {
     die("Missing article ID or user session.");
 }
 
-$article_id = $_GET['id'];
-$idUser = $_SESSION['idUser'];
 
 if (isset($_POST['submit'])) {
 
