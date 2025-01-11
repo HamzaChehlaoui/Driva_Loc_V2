@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <div class="flex justify-between">
-                <a href="index.php" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                <a href="blogger.php" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
                     Cancel
                 </a>
                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">

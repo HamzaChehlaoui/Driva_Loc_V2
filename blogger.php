@@ -36,7 +36,7 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 <?php echo isset($_SESSION['idUser']) ? 'logged-in' : ''; ?>">
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
@@ -52,6 +52,7 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                         <?php endforeach; ?>
                     </div>
                 </div>
+
                 
                 <?php if(isset($_SESSION['idUser'])): ?>
                     <div class="flex items-center space-x-4">
@@ -73,8 +74,8 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                 <?php endif; ?>
             </div>
         </div>
+        
     </nav>
-
     <!-- Search and Filters -->
     <div class="bg-white shadow-md py-4 mb-6">
         <div class="max-w-7xl mx-auto px-4">
@@ -138,10 +139,13 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                             
                             <?php if(isset($_SESSION['idUser'])): ?>
                                 <div class="flex items-center space-x-4">
-                                    <button onclick="toggleFavorite(<?php echo $article['article_id']; ?>)" 
-                                            class="text-gray-600 hover:text-red-600">
-                                        <i class="fas fa-heart <?php echo $favoriteObj->isFavorite($_SESSION['idUser'], $article['article_id']) ? 'text-red-600' : ''; ?>"></i>
-                                    </button>
+                                <button onclick="toggleFavorite(<?php echo $article['article_id']; ?>)" 
+    class="text-gray-600 hover:text-red-600">
+    <i id="heart-icon-<?php echo $article['article_id']; ?>" 
+       class="fas fa-heart <?php echo $favoriteObj->isFavorite($_SESSION['idUser'], $article['article_id']) ? 'text-red-600' : ''; ?>">
+    </i>
+</button>
+
                                     
                                     <?php if($_SESSION['idUser'] == $article['idUser']): ?>
                                         <a href="edit_article.php?id=<?php echo $article['article_id']; ?>" 
@@ -178,22 +182,75 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
 
     <script>
     function toggleFavorite(articleId) {
-        fetch('ajax/toggle_favorite.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                article_id: articleId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                location.reload();
-            }
-        });
+    // First, check if user is logged in (you can add a hidden input with PHP to check this)
+    if (!document.body.classList.contains('logged-in')) {
+        window.location.href = 'login.php';
+        return;
     }
+
+    fetch('ajax/toggle_favorite.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            article_id: articleId
+        }),
+        credentials: 'same-origin' // Important for sessions
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Get the heart icon
+            const heartIcon = document.querySelector(`#heart-icon-${articleId}`);
+            
+            // Toggle the heart color
+            if (data.isFavorite) {
+                heartIcon.classList.remove('text-gray-600');
+                heartIcon.classList.add('text-red-600');
+                console.log('Added to favorites');
+            } else {
+                heartIcon.classList.remove('text-red-600');
+                heartIcon.classList.add('text-gray-600');
+                console.log('Removed from favorites');
+            }
+            
+            // Optional: Show a feedback message
+            showMessage(data.message);
+        } else {
+            console.error('Error:', data.message);
+            showMessage(data.message || 'An error occurred', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('An error occurred while updating favorites', 'error');
+    });
+}
+
+// Add this helper function for showing messages (optional)
+function showMessage(message, type = 'success') {
+    // Create message element
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;
+    messageDiv.className = `fixed top-4 right-4 p-4 rounded-lg ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+
+    // Add to page
+    document.body.appendChild(messageDiv);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
 
     function deleteArticle(articleId) {
         if(confirm('Are you sure you want to delete this article?')) {
