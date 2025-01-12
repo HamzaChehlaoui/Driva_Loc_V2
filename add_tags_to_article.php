@@ -1,5 +1,8 @@
 <?php
 session_start();
+if($_SESSION['idUser']==null){
+    header('Location:index.php');
+}
 require("conn.php");
 require("TagArticle.php");
 require("Articles.php");

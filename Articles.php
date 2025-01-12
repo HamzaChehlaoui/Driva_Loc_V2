@@ -234,12 +234,6 @@ class Article {
             return $stmt->execute([$reviewerId, $articleId]);
         }
         
-        // public function getFilteredArticles($search, $theme, $tag, $limit, $offset) {
-        //     $sql = "SELECT DISTINCT a.* FROM articles a 
-        //             LEFT JOIN tag_article ta ON a.article_id = ta.article_id 
-        //             WHERE a.status = 'approved'"; // Only show approved articles
-            
-        //     // ... rest of your existing filtering logic ...
-        // }
+        
     }
 

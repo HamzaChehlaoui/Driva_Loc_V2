@@ -7,7 +7,7 @@ require("conn.php");
 require("Themes.php");
 require("Articles.php");
 require("Favorite.php");
-require("TagArticle.php");  
+require("TagArticle.php");
 
 $database = new Database();
 $db = $database->getConnection();
@@ -60,6 +60,9 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                     <div class="flex items-center space-x-4">
                         <a href="create_article.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                             Create Article
+                        </a>
+                        <a href="Add_theme.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            Create Theme
                         </a>
                         <a href="favorites.php" class="text-gray-600 hover:text-blue-600">
                             <i class="fas fa-heart"></i> Favorites
