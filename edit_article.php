@@ -15,17 +15,19 @@ $articleObj = new Article($db);
 $themeObj = new Theme($db);
 
 $article_id = $_GET['id'] ?? null;
+if($_SESSION['idUser'] !=1){
 if (!$article_id) {
     header('Location: blogger.php');
     exit();
 }
-
+}
 $article = $articleObj->getArticleById($article_id);
-if (!$article || $article['idUser'] != $_SESSION['idUser']) {
+if($_SESSION['idUser'] !=1){
+if (!$article || ($article['idUser'] != $_SESSION['idUser'])||$_SESSION['idUser'] !=1) {
     header('Location: blogger.php');
     exit();
 }
-
+}
 $themes = $themeObj->getAllThemes();
 $tags = $articleObj->getAllTags();
 $currentTags = $articleObj->getArticleTags($article_id);

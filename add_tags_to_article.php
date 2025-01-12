@@ -25,9 +25,12 @@ $tagArticleObj = new TagArticle($db);
 $articleObj = new Article($db);
 
 $article = $articleObj->getArticleById($articleId);
-if (!$article || $article['idUser'] != $_SESSION['idUser']) {
-    header("Location: index.php");
-    exit;
+if($_SESSION['idUser'] !=1){
+
+    if (!$article || $article['idUser'] != $_SESSION['idUser']) {
+        header("Location: index.php");
+        exit;
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tag_id'])) {

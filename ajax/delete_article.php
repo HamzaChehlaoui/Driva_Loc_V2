@@ -23,11 +23,12 @@ $db = $database->getConnection();
 $articleObj = new Article($db);
 
 $article = $articleObj->getArticleById($articleId);
-if (!$article || $article['idUser'] != $_SESSION['idUser']) {
+if($_SESSION['idUser'] !=1){
+if (!$article || ($article['idUser'] != $_SESSION['idUser'] )) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized to delete this article']);
     exit;
 }
-
+}
 if ($articleObj->deleteArticle($articleId)) {
     echo json_encode(['success' => true, 'message' => 'Article deleted successfully']);
 } else {

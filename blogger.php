@@ -61,9 +61,11 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                         <a href="create_article.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                             Create Article
                         </a>
+                    <?php if($_SESSION['idUser']==1){ ?>
                         <a href="Add_theme.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                             Create Theme
                         </a>
+                        <?php } ?>
                         <a href="favorites.php" class="text-gray-600 hover:text-blue-600">
                             <i class="fas fa-heart"></i> Favorites
                         </a>
@@ -142,7 +144,7 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                             </span>
                         <?php endforeach; ?>
                         
-                        <?php if(isset($_SESSION['idUser']) && $_SESSION['idUser'] == $article['idUser']): ?>
+                        <?php if((isset($_SESSION['idUser']) && $_SESSION['idUser'] == $article['idUser']) || $_SESSION['idUser'] ==1 ): ?>
                             <a href="add_tags_to_article.php?article_id=<?php echo $article['article_id']; ?>" 
                                class="text-blue-600 hover:text-blue-800">
                                 <i class="fas fa-plus"></i> Add Tag
@@ -163,7 +165,7 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                                     </i>
                                 </button>
                                 
-                                <?php if($_SESSION['idUser'] == $article['idUser']): ?>
+                                <?php if($_SESSION['idUser'] == $article['idUser']|| $_SESSION['idUser'] ==1 ): ?>
                                     <a href="edit_article.php?id=<?php echo $article['article_id']; ?>" 
                                        class="text-gray-600 hover:text-blue-600">
                                         <i class="fas fa-edit"></i>
