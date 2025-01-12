@@ -1,0 +1,20 @@
+
+CREATE TABLE `tags` (
+  `tag_id` int NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `tag_article` (
+  `article_id` int NOT NULL,
+  `tag_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `user` (
+  `idUser` int NOT NULL,
+  `nom` varchar(255) NOT NULL,
+  `emeil` varchar(255) NOT NULL,
+  `motDepasse` varchar(255) NOT NULL,
+  `adresse` varchar(255) DEFAULT NULL,
+  `roleId` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

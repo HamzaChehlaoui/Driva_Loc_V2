@@ -3,14 +3,12 @@ session_start();
 require("conn.php");
 require("Themes.php");
 require("Articles.php");
-require("Comments.php");
 require("Favorite.php");
 
 $database = new Database();
 $db = $database->getConnection();
 $themeObj = new Theme($db);
 $articleObj = new Article($db);
-$commentObj = new Comment($db);
 $favoriteObj = new Favorite($db);
 
 $search = isset($_GET['search']) ? $_GET['search'] : '';

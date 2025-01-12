@@ -16,34 +16,36 @@ $themeObj = new Theme($db);
 
 $themes = $themeObj->getAllThemes();
 $tags = $articleObj->getAllTags();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = $_POST['title'] ?? '';
-    $contents = $_POST['contents'] ?? '';
-    $theme_id = $_POST['theme_id'] ?? '';
-    $selectedTags = $_POST['tags'] ?? [];
-    
-    $img = null;
-    if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/';
-        $fileName = uniqid() . '_' . basename($_FILES['img']['name']);
-        $uploadFile = $uploadDir . $fileName;
+// In your form processing:
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $title = $_POST['title'] ?? '';
+        $contents = $_POST['contents'] ?? '';
+        $theme_id = $_POST['theme_id'] ?? '';
+        $img = $_POST['img'] ?? null;
         
-        if (move_uploaded_file($_FILES['img']['tmp_name'], $uploadFile)) {
-            $img = $uploadFile;
+        // Process tags - filter out empty values and validate
+        $selectedTags = [];
+        if (!empty($_POST['selected_tags'])) {
+            $selectedTags = array_filter(
+                explode(',', $_POST['selected_tags']),
+                function($tag) { return is_numeric($tag) && $tag > 0; }
+            );
+        }
+    
+        $article_id = $articleObj->createArticle(
+            $title,
+            $contents,
+            $_SESSION['idUser'],
+            $theme_id,
+            $selectedTags,
+            $img
+        );
+    
+        if ($article_id) {
+            header('Location: blogger.php');
+            exit();
         }
     }
-    
-    $article_id = $articleObj->createArticle($title, $contents, $_SESSION['idUser'], $theme_id, $img);
-    
-    if ($article_id) {
-        foreach ($selectedTags as $tag_id) {
-            $articleObj->addArticleTag($article_id, $tag_id);
-        }
-        header('Location: blogger.php');
-        exit();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -83,22 +85,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Tags</label>
-                <div class="flex flex-wrap gap-4">
-                    <?php foreach($tags as $tag): ?>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="tags[]" value="<?php echo $tag['tag_id']; ?>"
-                                   class="form-checkbox">
-                            <span class="ml-2"><?php echo htmlspecialchars($tag['name']); ?></span>
-                        </label>
-                    <?php endforeach; ?>
+            <div class="tag-selection mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Tags</label>
+                <div class="selected-tags flex flex-wrap gap-2 mb-2" id="selectedTags">
+                    <!-- Selected tags will appear here -->
                 </div>
+                <div class="flex gap-2">
+                    <select id="tagSelect" class="flex-1 px-4 py-2 border rounded-lg">
+                        <option value="">Select tags...</option>
+                        <?php foreach($articleObj->getAllTags() as $tag): ?>
+                            <option value="<?php echo $tag['tag_id']; ?>"><?php echo htmlspecialchars($tag['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" onclick="addTag()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        Add Tag
+                    </button>
+                </div>
+                <input type="hidden" name="selected_tags" id="selectedTagsInput" value="">
             </div>
-            
+
+            <!-- Image URL Section -->
             <div class="mb-6">
-                <label class="block text-gray-700 mb-2" for="img">Image</label>
-                <input type="file" id="img" name="img" accept="image/*"
+                <label class="block text-gray-700 mb-2" for="img">Image URL</label>
+                <input type="text" id="img" name="img" placeholder="Enter image URL"
                        class="w-full px-4 py-2 border rounded-lg">
             </div>
             
@@ -112,5 +121,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
+
+    <script>
+        function addTag() {
+    let tagSelect = document.getElementById('tagSelect');
+    let selectedTagsContainer = document.getElementById('selectedTags');
+    let selectedTagsInput = document.getElementById('selectedTagsInput');
+
+    let selectedOption = tagSelect.options[tagSelect.selectedIndex];
+    let tagValue = selectedOption.value;
+    
+    if (tagValue && tagValue.trim() !== '' && !document.getElementById(`tag-${tagValue}`)) {
+        let tagText = selectedOption.text;
+        
+        let tagElement = document.createElement('div');
+        tagElement.id = `tag-${tagValue}`;
+        tagElement.className = 'bg-gray-200 px-3 py-1 rounded-lg';
+        tagElement.innerHTML = `${tagText} <button type="button" onclick="removeTag(${tagValue})" class="ml-2 text-red-600">&times;</button>`;
+        selectedTagsContainer.appendChild(tagElement);
+
+        let selectedTags = Array.from(selectedTagsContainer.querySelectorAll('div'))
+            .map(tag => tag.id.replace('tag-', ''))
+            .filter(id => id && id.trim() !== '');
+            
+        selectedTagsInput.value = selectedTags.join(',');
+    }
+}
+
+        function removeTag(tagId) {
+            let tagElement = document.getElementById(`tag-${tagId}`);
+            if (tagElement) {
+                tagElement.remove();
+
+                let selectedTags = Array.from(document.querySelectorAll('#selectedTags div')).map(tag => tag.id.replace('tag-', ''));
+                document.getElementById('selectedTagsInput').value = selectedTags.join(',');
+            }
+        }
+
+    </script>
 </body>
 </html>

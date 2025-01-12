@@ -90,22 +90,34 @@ class Article {
         return $stmt->fetchColumn();
     }
 
-    public function createArticle($title, $contents, $user_id, $theme_id, $img = null) {
-        $query = "INSERT INTO " . $this->table_name . " 
-                 (title, contents, idUser, theme_id, img, status) 
-                 VALUES (?, ?, ?, ?, ?, 'pending')";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $title);
-        $stmt->bindParam(2, $contents);
-        $stmt->bindParam(3, $user_id);
-        $stmt->bindParam(4, $theme_id);
-        $stmt->bindParam(5, $img);
-        
-        if($stmt->execute()) {
-            return $this->conn->lastInsertId();
+    public function createArticle($title, $content, $userId, $themeId, $tags, $image = null) {
+        try {
+            $this->conn->beginTransaction();
+            
+            $sql = "INSERT INTO articles (title, contents, idUser, theme_id, img, status) 
+                    VALUES (?, ?, ?, ?, ?, 'pending')";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$title, $content, $userId, $themeId, $image]);
+            $articleId = $this->conn->lastInsertId();
+            
+            // Insert tags - only if we have valid tags
+            if (is_array($tags) && !empty($tags)) {
+                $tagSql = "INSERT INTO tag_article (article_id, tag_id) VALUES (?, ?)";
+                $tagStmt = $this->conn->prepare($tagSql);
+                foreach ($tags as $tagId) {
+                    if (is_numeric($tagId) && $tagId > 0) {  // Additional validation
+                        $tagStmt->execute([$articleId, $tagId]);
+                    }
+                }
+            }
+            
+            $this->conn->commit();
+            return $articleId;
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
         }
-        return false;
     }
 
     public function updateArticle($id, $title, $contents, $theme_id, $img = null) {
@@ -196,4 +208,38 @@ class Article {
         $stmt->bindParam(1, $article_id);
         return $stmt->execute();
     }
-}
+  
+        
+        
+        
+        public function approveArticle($articleId, $reviewerId) {
+            $sql = "UPDATE articles 
+                    SET status = 'approved', 
+                        reviewed_by = ?, 
+                        reviewed_at = CURRENT_TIMESTAMP 
+                    WHERE article_id = ?";
+            
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([$reviewerId, $articleId]);
+        }
+        
+        public function rejectArticle($articleId, $reviewerId) {
+            $sql = "UPDATE articles 
+                    SET status = 'rejected', 
+                        reviewed_by = ?, 
+                        reviewed_at = CURRENT_TIMESTAMP 
+                    WHERE article_id = ?";
+            
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([$reviewerId, $articleId]);
+        }
+        
+        // public function getFilteredArticles($search, $theme, $tag, $limit, $offset) {
+        //     $sql = "SELECT DISTINCT a.* FROM articles a 
+        //             LEFT JOIN tag_article ta ON a.article_id = ta.article_id 
+        //             WHERE a.status = 'approved'"; // Only show approved articles
+            
+        //     // ... rest of your existing filtering logic ...
+        // }
+    }
+
