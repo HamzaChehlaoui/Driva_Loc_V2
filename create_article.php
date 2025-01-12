@@ -88,7 +88,6 @@ $tags = $articleObj->getAllTags();
             <div class="tag-selection mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Tags</label>
                 <div class="selected-tags flex flex-wrap gap-2 mb-2" id="selectedTags">
-                    <!-- Selected tags will appear here -->
                 </div>
                 <div class="flex gap-2">
                     <select id="tagSelect" class="flex-1 px-4 py-2 border rounded-lg">

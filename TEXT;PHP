@@ -18,3 +18,16 @@ CREATE TABLE `user` (
   `adresse` varchar(255) DEFAULT NULL,
   `roleId` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `articles` (
+  `article_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `contents` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `idUser` int DEFAULT NULL,
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `theme_id` int DEFAULT NULL,
+  `img` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

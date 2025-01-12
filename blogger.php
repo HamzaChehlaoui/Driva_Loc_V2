@@ -61,6 +61,9 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                             <i class="fas fa-heart"></i> Favorites
                         </a>
                         <a href="logout.php" class="text-gray-600 hover:text-red-600">Logout</a>
+                        <a href="add_tag.php" class="text-gray-600 hover:text-blue-600">
+    <i class="fas fa-tag"></i> Add Tag
+</a>
                     </div>
                 <?php else: ?>
                     <div class="flex items-center space-x-4">
@@ -68,11 +71,12 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                         <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                             Register
                         </a>
+                        
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-        
+       
     </nav>
     <!-- Search and Filters -->
     <div class="bg-white shadow-md py-4 mb-6">
