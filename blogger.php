@@ -1,10 +1,13 @@
 <?php
 session_start();
+if($_SESSION['idUser']==null){
+    header('Location:index.php');
+}
 require("conn.php");
 require("Themes.php");
 require("Articles.php");
 require("Favorite.php");
-require("TagArticle.php");  // Add this line
+require("TagArticle.php");  
 
 $database = new Database();
 $db = $database->getConnection();

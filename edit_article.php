@@ -36,23 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $contents = $_POST['contents'] ?? '';
     $theme_id = $_POST['theme_id'] ?? '';
     $selectedTags = $_POST['tags'] ?? [];
+    $img = $_POST['img'] ?? ''; // Get the new image URL from POST
     
-    $img = $article['img'];
-    if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/';
-        $fileName = uniqid() . '_' . basename($_FILES['img']['name']);
-        $uploadFile = $uploadDir . $fileName;
-        
-        if (move_uploaded_file($_FILES['img']['tmp_name'], $uploadFile)) {
-            if ($img && file_exists($img)) {
-                unlink($img);
-            }
-            $img = $uploadFile;
-        }
+    // If no new image URL is provided, keep the existing one
+    if (empty($img)) {
+        $img = $article['img'];
     }
     
     if ($articleObj->updateArticle($article_id, $title, $contents, $theme_id, $img)) {
-        // $articleObj->deleteArticleTags($article_id);
         foreach ($selectedTags as $tag_id) {
             $articleObj->addArticleTag($article_id, $tag_id);
         }
@@ -74,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="max-w-4xl mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold mb-8">Edit Article</h1>
         
-        <form action="" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-lg p-6">
+        <form action="" method="POST" class="bg-white rounded-lg shadow-lg p-6">
             <div class="mb-4">
                 <label class="block text-gray-700 mb-2" for="title">Title</label>
                 <input type="text" id="title" name="title" required
@@ -101,32 +92,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Tags</label>
-                <div class="flex flex-wrap gap-4">
-                    <?php foreach($tags as $tag): ?>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" name="tags[]" value="<?php echo $tag['tag_id']; ?>"
-                                   <?php echo in_array($tag['tag_id'], $currentTagIds) ? 'checked' : ''; ?>
-                                   class="form-checkbox">
-                            <span class="ml-2"><?php echo htmlspecialchars($tag['name']); ?></span>
-                        </label>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            
             <div class="mb-6">
-                <label class="block text-gray-700 mb-2" for="img">Image</label>
+                <label class="block text-gray-700 mb-2" for="img">Image URL</label>
                 <?php if($article['img']): ?>
-                    <img src="<?php echo htmlspecialchars($article['img']); ?>" 
-                         alt="Current image" class="w-48 mb-2">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Current image:</p>
+                        <img src="<?php echo htmlspecialchars($article['img']); ?>" 
+                             alt="Current image" class="w-48 mb-2">
+                    </div>
                 <?php endif; ?>
-                <input type="file" id="img" name="img" accept="image/*"
+                <input type="text" id="img" name="img" 
+                       value="<?php echo htmlspecialchars($article['img']); ?>"
+                       placeholder="Enter image URL"
                        class="w-full px-4 py-2 border rounded-lg">
+                <p class="text-sm text-gray-500 mt-1">Leave empty to keep current image</p>
             </div>
             
             <div class="flex justify-between">
-                <a href="index.php" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
+                <a href="blogger.php" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">
                     Cancel
                 </a>
                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">

@@ -97,7 +97,7 @@ $currentTags = $tagArticleObj->getArticleTags($articleId);
                                 <?php echo htmlspecialchars($tag['name']); ?>
                                 <a href="remove_tag.php?article_id=<?php echo $articleId; ?>&tag_id=<?php echo $tag['tag_id']; ?>" 
                                    class="ml-2 text-red-500 hover:text-red-700">
-                                    <i class="fas fa-times"></i>
+                                 
                                 </a>
                             </div>
                         <?php endforeach; ?>
