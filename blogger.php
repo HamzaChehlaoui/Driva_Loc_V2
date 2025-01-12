@@ -4,13 +4,14 @@ require("conn.php");
 require("Themes.php");
 require("Articles.php");
 require("Favorite.php");
+require("TagArticle.php");  // Add this line
 
 $database = new Database();
 $db = $database->getConnection();
 $themeObj = new Theme($db);
 $articleObj = new Article($db);
 $favoriteObj = new Favorite($db);
-
+$tagArticleObj = new TagArticle($db);  
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $selectedTheme = isset($_GET['theme']) ? (int)$_GET['theme'] : null;
 $selectedTag = isset($_GET['tag']) ? (int)$_GET['tag'] : null;
@@ -110,63 +111,70 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
 
     <!-- Articles Grid -->
     <div class="max-w-7xl mx-auto px-4 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php foreach($articles as $article): ?>
-                <article class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <?php if($article['img']): ?>
-                        <img src="<?php echo htmlspecialchars($article['img']); ?>" 
-                             alt="<?php echo htmlspecialchars($article['title']); ?>"
-                             class="w-full h-48 object-cover">
-                    <?php endif; ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <?php foreach($articles as $article): ?>
+            <article class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <?php if($article['img']): ?>
+                    <img src="<?php echo htmlspecialchars($article['img']); ?>" 
+                         alt="<?php echo htmlspecialchars($article['title']); ?>"
+                         class="w-full h-48 object-cover">
+                <?php endif; ?>
+                
+                <div class="p-6">
+                    <h2 class="text-xl font-bold mb-2">
+                        <?php echo htmlspecialchars($article['title']); ?>
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        <?php echo substr(htmlspecialchars($article['contents']), 0, 150) . '...'; ?>
+                    </p>
                     
-                    <div class="p-6">
-                        <h2 class="text-xl font-bold mb-2">
-                            <?php echo htmlspecialchars($article['title']); ?>
-                        </h2>
-                        <p class="text-gray-600 mb-4">
-                            <?php echo substr(htmlspecialchars($article['contents']), 0, 150) . '...'; ?>
-                        </p>
+                    <!-- Simplified tag display without deletion -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <?php foreach($articleObj->getArticleTags($article['article_id']) as $tag): ?>
+                            <span class="bg-gray-200 px-2 py-1 rounded-full text-sm">
+                                <?php echo htmlspecialchars($tag['name']); ?>
+                            </span>
+                        <?php endforeach; ?>
                         
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <?php foreach($articleObj->getArticleTags($article['article_id']) as $tag): ?>
-                                <span class="bg-gray-200 px-2 py-1 rounded-full text-sm">
-                                    <?php echo htmlspecialchars($tag['name']); ?>
-                                </span>
-                            <?php endforeach; ?>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <a href="article.php?id=<?php echo $article['article_id']; ?>" 
-                               class="text-blue-600 hover:text-blue-800">Read More</a>
-                            
-                            <?php if(isset($_SESSION['idUser'])): ?>
-                                <div class="flex items-center space-x-4">
-                                <button onclick="toggleFavorite(<?php echo $article['article_id']; ?>)" 
-    class="text-gray-600 hover:text-red-600">
-    <i id="heart-icon-<?php echo $article['article_id']; ?>" 
-       class="fas fa-heart <?php echo $favoriteObj->isFavorite($_SESSION['idUser'], $article['article_id']) ? 'text-red-600' : ''; ?>">
-    </i>
-</button>
-
-                                    
-                                    <?php if($_SESSION['idUser'] == $article['idUser']): ?>
-                                        <a href="edit_article.php?id=<?php echo $article['article_id']; ?>" 
-                                           class="text-gray-600 hover:text-blue-600">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button onclick="deleteArticle(<?php echo $article['article_id']; ?>)" 
-                                                class="text-gray-600 hover:text-red-600">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
+                        <?php if(isset($_SESSION['idUser']) && $_SESSION['idUser'] == $article['idUser']): ?>
+                            <a href="add_tags_to_article.php?article_id=<?php echo $article['article_id']; ?>" 
+                               class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-plus"></i> Add Tag
+                            </a>
+                        <?php endif; ?>
                     </div>
-                </article>
-            <?php endforeach; ?>
-        </div>
-
+                    
+                    <div class="flex justify-between items-center">
+                        <a href="article.php?id=<?php echo $article['article_id']; ?>" 
+                           class="text-blue-600 hover:text-blue-800">Read More</a>
+                        
+                        <?php if(isset($_SESSION['idUser'])): ?>
+                            <div class="flex items-center space-x-4">
+                                <button onclick="toggleFavorite(<?php echo $article['article_id']; ?>)" 
+                                        class="text-gray-600 hover:text-red-600">
+                                    <i id="heart-icon-<?php echo $article['article_id']; ?>" 
+                                       class="fas fa-heart <?php echo $favoriteObj->isFavorite($_SESSION['idUser'], $article['article_id']) ? 'text-red-600' : ''; ?>">
+                                    </i>
+                                </button>
+                                
+                                <?php if($_SESSION['idUser'] == $article['idUser']): ?>
+                                    <a href="edit_article.php?id=<?php echo $article['article_id']; ?>" 
+                                       class="text-gray-600 hover:text-blue-600">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button onclick="deleteArticle(<?php echo $article['article_id']; ?>)" 
+                                            class="text-gray-600 hover:text-red-600">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </article>
+        <?php endforeach; ?>
+    </div>
+</div>
         <!-- Pagination -->
         <?php if($totalPages > 1): ?>
             <div class="flex justify-center mt-8">
