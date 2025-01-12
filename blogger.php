@@ -66,9 +66,15 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
                             Create Theme
                         </a>
                         <?php } ?>
+                        <?php if(isset($_SESSION['idUser']) && $_SESSION['idUser'] == 1): ?>
+    <a href="admin_articles.php" class="text-gray-600 hover:text-blue-60">
+        Admin Dashboard
+    </a>
+<?php endif; ?>
                         <a href="favorites.php" class="text-gray-600 hover:text-blue-600">
                             <i class="fas fa-heart"></i> Favorites
                         </a>
+                 
                         <a href="logout.php" class="text-gray-600 hover:text-red-600">Logout</a>
                         <a href="add_tag.php" class="text-gray-600 hover:text-blue-600">
     <i class="fas fa-tag"></i> Add Tag
@@ -87,6 +93,7 @@ $totalPages = ceil($totalArticles / $articlesPerPage);
         </div>
        
     </nav>
+    
     <!-- Search and Filters -->
     <div class="bg-white shadow-md py-4 mb-6">
         <div class="max-w-7xl mx-auto px-4">

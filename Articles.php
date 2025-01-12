@@ -7,87 +7,89 @@ class Article {
     public function __construct($db) {
         $this->conn = $db;
     }
-
-    public function getFilteredArticles($search, $theme_id, $tag_id, $limit, $offset) {
-        $query = "SELECT a.*, u.nom as author_name 
-                 FROM " . $this->table_name . " a 
-                 LEFT JOIN user u ON a.idUser = u.idUser 
-                 WHERE 1=1";
-        $params = [];
-        $types = [];
-    
-        if (!empty($search)) {
-            $query .= " AND (a.title LIKE ? OR a.contents LIKE ?)";
-            $searchTerm = "%{$search}%";
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
-            $types[] = PDO::PARAM_STR;
-            $types[] = PDO::PARAM_STR;
-        }
-    
-        if ($theme_id) {
-            $query .= " AND a.theme_id = ?";
-            $params[] = $theme_id;
-            $types[] = PDO::PARAM_INT;
-        }
-    
-        if ($tag_id) {
-            $query .= " AND EXISTS (
-                SELECT 1 FROM tag_article ta 
-                WHERE ta.article_id = a.article_id 
-                AND ta.tag_id = ?
-            )";
-            $params[] = $tag_id;
-            $types[] = PDO::PARAM_INT;
-        }
-    
-        $query .= " ORDER BY a.created_at DESC LIMIT ? OFFSET ?";
+    public function getFilteredArticles($search = '', $theme = null, $tag = null, $limit = null, $offset = null) {
+        $sql = "SELECT DISTINCT a.* FROM articles a 
+                LEFT JOIN tag_article ta ON a.article_id = ta.article_id 
+                WHERE (a.status = 'approved' OR a.idUser = :userId)";
         
-        $stmt = $this->conn->prepare($query);
+        $params = [':userId' => $_SESSION['idUser'] ?? 0];
         
-        foreach ($params as $i => $param) {
-            $stmt->bindValue($i + 1, $param, $types[$i]);
+        if ($search) {
+            $sql .= " AND (a.title LIKE :search OR a.contents LIKE :search)";
+            $params[':search'] = "%$search%";
         }
         
-        $paramIndex = count($params) + 1;
-        $stmt->bindValue($paramIndex, $limit, PDO::PARAM_INT);
-        $stmt->bindValue($paramIndex + 1, $offset, PDO::PARAM_INT);
+        if ($theme) {
+            $sql .= " AND a.theme_id = :theme";
+            $params[':theme'] = $theme;
+        }
+        
+        if ($tag) {
+            $sql .= " AND ta.tag_id = :tag";
+            $params[':tag'] = $tag;
+        }
+        
+        $sql .= " ORDER BY a.created_at DESC";
+        
+        // Add LIMIT and OFFSET directly to the SQL string instead of binding them
+        if ($limit !== null) {
+            $sql .= " LIMIT " . (int)$limit;
+            
+            if ($offset !== null) {
+                $sql .= " OFFSET " . (int)$offset;
+            }
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        
+        // Execute with params
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $stmt->bindValue($key, $val, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($key, $val, PDO::PARAM_STR);
+            }
+        }
         
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getTotalFilteredArticles($search, $theme_id, $tag_id) {
-        $query = "SELECT COUNT(*) FROM " . $this->table_name . " a WHERE 1=1";
-        $params = [];
-
-        if (!empty($search)) {
-            $query .= " AND (a.title LIKE ? OR a.contents LIKE ?)";
-            $searchTerm = "%{$search}%";
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
+    public function getTotalFilteredArticles($search = '', $theme = null, $tag = null) {
+        $sql = "SELECT COUNT(DISTINCT a.article_id) as total FROM articles a 
+                LEFT JOIN tag_article ta ON a.article_id = ta.article_id 
+                WHERE (a.status = 'approved' OR a.idUser = :userId)";
+        
+        $params = [':userId' => $_SESSION['idUser'] ?? 0];
+        
+        if ($search) {
+            $sql .= " AND (a.title LIKE :search OR a.contents LIKE :search)";
+            $params[':search'] = "%$search%";
         }
-
-        if ($theme_id) {
-            $query .= " AND a.theme_id = ?";
-            $params[] = $theme_id;
+        
+        if ($theme) {
+            $sql .= " AND a.theme_id = :theme";
+            $params[':theme'] = $theme;
         }
-
-        if ($tag_id) {
-            $query .= " AND EXISTS (
-                SELECT 1 FROM tag_article ta 
-                WHERE ta.article_id = a.article_id 
-                AND ta.tag_id = ?
-            )";
-            $params[] = $tag_id;
+        
+        if ($tag) {
+            $sql .= " AND ta.tag_id = :tag";
+            $params[':tag'] = $tag;
         }
-
-        $stmt = $this->conn->prepare($query);
-        foreach ($params as $i => $param) {
-            $stmt->bindValue($i + 1, $param);
+        
+        $stmt = $this->conn->prepare($sql);
+        
+        foreach ($params as $key => $val) {
+            if (is_int($val)) {
+                $stmt->bindValue($key, $val, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($key, $val, PDO::PARAM_STR);
+            }
         }
+        
         $stmt->execute();
-        return $stmt->fetchColumn();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'];
     }
 
     public function createArticle($title, $content, $userId, $themeId, $tags, $image = null) {
